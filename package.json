@@ -1,0 +1,32 @@
+{
+    "name": "ticcr",
+    "version": "1.0.0",
+    "description": "Compare crypto currency valuations",
+    "bin": {
+        "ticcr": "./bin/ticcr.js"
+    },
+    "main": "./bin/ticcr.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/rzs/ticcr.git"
+    },
+    "keywords": [
+        "crypto",
+        "currency",
+        "ticker"
+    ],
+    "author": "Rasmus Nørgaard",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/rzs/ticcr/issues"
+    },
+    "homepage": "https://github.com/rzs/ticcr#readme",
+    "dependencies": {
+        "chalk": "^4.1.1",
+        "commander": "^7.2.0",
+        "node-fetch": "^2.6.1"
+    }
+}
