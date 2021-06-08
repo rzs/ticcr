@@ -8,12 +8,10 @@ const lookup = require('../commands/lookup');
 program
     .version(pkg.version)
     .option('-d, --debug', 'Output options')
-    .option('-c, --currency <type>', 'Select the denominated value; BTC, USD or USDT')
+    .option('-c, --currency [currencies...]', 'Select the denominated value; BTC, USD or USDT') // eventually more
     .arguments('[tickers...]')
     .description("Supply tickers as arguments to display their prices")
     .action((tickers) => {
-        if (program.opts().debug) console.log(program.opts());
-        if (program.opts().currency) console.log('Get value in ' + program.opts().currency + '\n');
         lookup.tickers(tickers, program.opts().currency);
     })
     .parse(process.argv);
