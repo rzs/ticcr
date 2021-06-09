@@ -24,8 +24,7 @@ const doLookup = async function(tickers, currency) {
                 sortOnTickerName(tickerCurrencyList);
                 buildTable(tickerCurrencyList);
             } else {
-                const priceData = mapJsonData(jsonData);
-                buildTable(priceData);
+                buildTable(transformedData);
             }
         })
         .catch(error => {
@@ -87,15 +86,6 @@ function filterOnCurrency(currency, tickerList) {
 
 function sortOnTickerName(tickerCurrencyList) {
     tickerCurrencyList.sort((a, b) => (a.symbol > b.symbol) ? 1 : ((b.symbol > a.symbol) ? -1 : 0));
-}
-
-function mapJsonData(jsonData) {
-    return jsonData.map((obj) => {
-        return {
-            symbol: obj.symbol,
-            price: obj.lastTradeRate
-        };
-    });
 }
 
 function buildTable(tickerCurrencyList) {
