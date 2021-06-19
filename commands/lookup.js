@@ -1,30 +1,34 @@
 //const express = require("express");
 const fetch = require('node-fetch');
-const util = require('../lib/util');
+const apiResolver = require('../lib/util/api/apiResolver');
+const tableStyle = require('../lib/util/table/tableStyle');
 //const app = express();
 
 //app.use(express.urlencoded({ extended: true }));
 //app.use(express.json());
 
-const doLookup = async function(tickers, currency) {
-    //console.log('Arguments: ' + tickers, currency);
-
-    //const polinexUrl 'https://poloniex.com/public?command=returnTicker';
-    const bittrexUrl = 'https://api.bittrex.com/v3/markets/tickers';
-    fetch(bittrexUrl)
+const doLookup = async function(tickers, currency, exchange) {
+    const api = apiResolver.resolveUrl(exchange);
+    //const bittrexUrl = 'https://api.bittrex.com/v3/markets/tickers';
+    fetch(api.url)
         .then(res => res.json())
         .then(data => {
-            const jsonData = Object.values(data);
-            const transformedData = splitOnNameAndCurrency(jsonData);
+            // data here could be from any exchange
+            const transformedData = apiResolver.resolveParser(data, exchange);
+            //const transformedData = splitOnNameAndCurrency(jsonData, divider);
+
+            // parsing of data into a tickerList below requires a uniform transformedData array
+            // ...or everything up until buildTable is just different for each exchange? 
+            // ...we wish to reuse as much as possible so try to make transformedData shape same for all
 
             if (Array.isArray(tickers) && tickers.length) {
                 const tickerList = filterOnTickers(tickers, transformedData);
                 const tickerCurrencyList = filterOnCurrency(currency, tickerList);
 
                 sortOnTickerName(tickerCurrencyList);
-                buildTable(tickerCurrencyList);
+                buildTable(exchange, tickerCurrencyList);
             } else {
-                buildTable(transformedData);
+                buildTable(exchange, transformedData);
             }
         })
         .catch(error => {
@@ -33,16 +37,13 @@ const doLookup = async function(tickers, currency) {
         });
 };
 
-function splitOnNameAndCurrency(jsonData) {
-    const parsedArray = [];
-    jsonData.forEach((obj) => {
-        let tickerSubstring = {};
-        tickerSubstring.symbol = obj.symbol.substr(0, obj.symbol.indexOf('-'));
-        tickerSubstring.currency = obj.symbol.substr(obj.symbol.indexOf('-') + 1);
-        tickerSubstring.price = obj.lastTradeRate;
-        parsedArray.push(tickerSubstring);
-    });
-    return parsedArray;
+function findDivider(element) {
+    if (element.symbol.includes("-")) {
+        return "dash";
+    }
+    if (element.symbol.includes("_")) {
+        return "underscore";
+    }
 }
 
 function filterOnTickers(tickers, transformedData) {
@@ -88,8 +89,8 @@ function sortOnTickerName(tickerCurrencyList) {
     tickerCurrencyList.sort((a, b) => (a.symbol > b.symbol) ? 1 : ((b.symbol > a.symbol) ? -1 : 0));
 }
 
-function buildTable(tickerCurrencyList) {
-    const t = util.styledTable;
+function buildTable(exchange, tickerCurrencyList) {
+    const t = tableStyle.setupTable(exchange);
     tickerCurrencyList.forEach(obj => {
         t.addRow({ symbol: obj.symbol, currency: obj.currency, price: obj.price }, { color: "green" });
     });

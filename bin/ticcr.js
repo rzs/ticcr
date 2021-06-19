@@ -9,10 +9,11 @@ program
     .version(pkg.version)
     .option('-d, --debug', 'Output options')
     .option('-c, --currency [currencies...]', 'Select the denominated value; BTC, USD or USDT') // eventually more
+    .option('-e, --exchange <exchange>', 'Polinex is the default')
     .arguments('[tickers...]')
     .description("Supply tickers as arguments to display their prices")
     .action((tickers) => {
-        lookup.tickers(tickers, program.opts().currency);
+        lookup.tickers(tickers, program.opts().currency, program.opts().exchange);
     })
     .parse(process.argv);
 
