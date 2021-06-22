@@ -1,34 +1,21 @@
-//const express = require("express");
 const fetch = require('node-fetch');
 const apiResolver = require('../lib/util/api/apiResolver');
 const tableStyle = require('../lib/util/table/tableStyle');
-//const app = express();
-
-//app.use(express.urlencoded({ extended: true }));
-//app.use(express.json());
 
 const doLookup = async function(tickers, currency, exchange) {
     const api = apiResolver.resolveUrl(exchange);
-    //const bittrexUrl = 'https://api.bittrex.com/v3/markets/tickers';
     fetch(api.url)
         .then(res => res.json())
         .then(data => {
             // data here could be from any exchange
-            const transformedData = apiResolver.resolveParser(data, exchange);
-            //const transformedData = splitOnNameAndCurrency(jsonData, divider);
-
-            // parsing of data into a tickerList below requires a uniform transformedData array
-            // ...or everything up until buildTable is just different for each exchange? 
-            // ...we wish to reuse as much as possible so try to make transformedData shape same for all
-
+            const transformedData = apiResolver.resolveParser(data, api.name);
             if (Array.isArray(tickers) && tickers.length) {
                 const tickerList = filterOnTickers(tickers, transformedData);
                 const tickerCurrencyList = filterOnCurrency(currency, tickerList);
-
-                sortOnTickerName(tickerCurrencyList);
-                buildTable(exchange, tickerCurrencyList);
+                sortAndBuild(api, tickerCurrencyList);
             } else {
-                buildTable(exchange, transformedData);
+                const tickerCurrencyList = filterOnCurrency(currency, transformedData);
+                sortAndBuild(api, tickerCurrencyList);
             }
         })
         .catch(error => {
@@ -36,15 +23,6 @@ const doLookup = async function(tickers, currency, exchange) {
             console.error(error.message);
         });
 };
-
-function findDivider(element) {
-    if (element.symbol.includes("-")) {
-        return "dash";
-    }
-    if (element.symbol.includes("_")) {
-        return "underscore";
-    }
-}
 
 function filterOnTickers(tickers, transformedData) {
     const tickerList = [];
@@ -83,6 +61,11 @@ function filterOnCurrency(currency, tickerList) {
     } else {
         return tickerList;
     }
+}
+
+function sortAndBuild(api, tickerCurrencyList) {
+    sortOnTickerName(tickerCurrencyList);
+    buildTable(api.name, tickerCurrencyList);
 }
 
 function sortOnTickerName(tickerCurrencyList) {
