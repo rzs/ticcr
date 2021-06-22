@@ -1,6 +1,6 @@
 {
     "name": "ticcr",
-    "version": "1.0.8",
+    "version": "1.0.9",
     "description": "Lookup crypto currency prices",
     "bin": {
         "ticcr": "./bin/ticcr.js"

@@ -2,6 +2,18 @@
 
 CLI command that currently allow you to fetch crypto currency prices from Polinex and Bittrex. 
 
+```bash
+$ ticcr
+```
+
+The above command gives list of all cryptos from the default exchange. Currently Bittrex. 
+
+```bash
+$ ticcr btc -c usdt
+```
+
+Will give a list of all cryptos from the default exchange in usdt. 
+
 Use with flag -c (--currency) to select the currency you wish the crypto displayed in. Use with flag -e (--exchange) to select from which exchange you want the price. 
 
 ```bash
