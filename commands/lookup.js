@@ -1,46 +1,49 @@
 const fetch = require('node-fetch');
 const apiResolver = require('../lib/util/api/apiResolver');
 const tableStyle = require('../lib/util/table/tableStyle');
+const printError = require('../');
 
 const doLookup = async function(tickers, currency, exchange) {
     const api = apiResolver.resolveUrl(exchange);
-    fetch(api.url)
-        .then(res => res.json())
-        .then(data => {
-            // data here could be from any exchange
-            const transformedData = apiResolver.resolveParser(data, api.name);
-            if (Array.isArray(tickers) && tickers.length) {
-                const tickerList = filterOnTickers(tickers, transformedData);
-                const tickerCurrencyList = filterOnCurrency(currency, tickerList);
-                sortAndBuild(api, tickerCurrencyList);
-            } else {
-                const tickerCurrencyList = filterOnCurrency(currency, transformedData);
-                sortAndBuild(api, tickerCurrencyList);
-            }
-        })
-        .catch(error => {
-            console.error('Oh shoot. Something went wrong with the promise code:');
-            console.error(error.message);
-        });
-};
+
+    // data here could be from any exchange
+    const parserPromise = apiResolver.resolveParser(api);
+    parserPromise.then(transformedData => {
+        filterAndBuild(tickers, transformedData, currency, api);
+    }).catch(error => {
+        printError(error);
+    });
+}
+
+function filterAndBuild(tickers, transformedData, currency, api) {
+    if (Array.isArray(tickers) && tickers.length) {
+        const tickerList = filterOnTickers(tickers, transformedData);
+        const tickerCurrencyList = filterOnCurrency(currency, tickerList);
+        sortAndBuild(api, tickerCurrencyList);
+    } else {
+        const tickerCurrencyList = filterOnCurrency(currency, transformedData);
+        sortAndBuild(api, tickerCurrencyList);
+    }
+}
 
 function filterOnTickers(tickers, transformedData) {
     const tickerList = [];
     tickers.forEach((ticker) => {
         let filteredList = transformedData.filter((obj) => {
-            return obj.symbol.toLowerCase() === ticker.toLowerCase();
+            return obj.baseAsset.toLowerCase() === ticker.toLowerCase();
         });
-        filteredList.map(filteredObj => {
+        const tempArray = filteredList.map(filteredObj => {
             return {
-                symbol: filteredObj.symbol,
-                currency: filteredObj.currency,
+                symbol: filteredObj.baseAsset,
+                currency: filteredObj.quoteAsset,
                 price: filteredObj.price
             };
         });
-        filteredList.forEach(item => {
+        tempArray.forEach(item => {
             tickerList.push(item);
         });
     });
+    tickerList.sort((a, b) => (a.currency > b.currency) ? 1 : ((b.currency > a.currency) ? -1 : 0));
     return tickerList;
 }
 
@@ -57,6 +60,7 @@ function filterOnCurrency(currency, tickerList) {
                 });
             });
         };
+        filteredTickerList.sort((a, b) => (a.currency > b.currency) ? 1 : ((b.currency > a.currency) ? -1 : 0));
         return filteredTickerList;
     } else {
         return tickerList;
@@ -75,7 +79,7 @@ function sortOnTickerName(tickerCurrencyList) {
 function buildTable(exchange, tickerCurrencyList) {
     const t = tableStyle.setupTable(exchange);
     tickerCurrencyList.forEach(obj => {
-        t.addRow({ symbol: obj.symbol, currency: obj.currency, price: obj.price }, { color: "green" });
+        t.addRow({ Symbol: obj.symbol, Currency: obj.currency, Price: obj.price }, { color: "green" });
     });
     t.printTable();
 }

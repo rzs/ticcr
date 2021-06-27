@@ -1,6 +1,6 @@
 {
     "name": "ticcr",
-    "version": "1.1.0",
+    "version": "1.1.1",
     "description": "Lookup crypto currency prices",
     "bin": {
         "ticcr": "./bin/ticcr.js"
@@ -15,12 +15,18 @@
     },
     "keywords": [
         "crypto",
+        "bitcoin",
+        "doge",
+        "decred",
+        "litecoin",
         "currency",
         "ticker",
         "cli",
         "cli-app",
         "term",
         "terminal",
+        "command-line",
+        "shell",
         "api"
     ],
     "author": "Rasmus Nørgaard",
