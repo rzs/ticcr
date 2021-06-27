@@ -17,34 +17,40 @@ const doLookup = async function(tickers, currency, exchange) {
 
 function filterAndBuild(tickers, transformedData, currency, api) {
     if (Array.isArray(tickers) && tickers.length) {
-        const tickerList = filterOnTickers(tickers, transformedData);
+        const filteredList = filterOnTickers(tickers, transformedData);
+        const tickerList = mapAndSort(filteredList);
         const tickerCurrencyList = filterOnCurrency(currency, tickerList);
         sortAndBuild(api, tickerCurrencyList);
     } else {
-        const tickerCurrencyList = filterOnCurrency(currency, transformedData);
+        const tickerList = mapAndSort(transformedData);
+        const tickerCurrencyList = filterOnCurrency(currency, tickerList);
         sortAndBuild(api, tickerCurrencyList);
     }
 }
 
 function filterOnTickers(tickers, transformedData) {
-    const tickerList = [];
+    let filteredList = [];
     tickers.forEach((ticker) => {
-        let filteredList = transformedData.filter((obj) => {
+        const tempArray = transformedData.filter((obj) => {
             return obj.baseAsset.toLowerCase() === ticker.toLowerCase();
         });
-        const tempArray = filteredList.map(filteredObj => {
-            return {
-                symbol: filteredObj.baseAsset,
-                currency: filteredObj.quoteAsset,
-                price: filteredObj.price
-            };
-        });
         tempArray.forEach(item => {
-            tickerList.push(item);
+            filteredList.push(item);
         });
     });
-    tickerList.sort((a, b) => (a.currency > b.currency) ? 1 : ((b.currency > a.currency) ? -1 : 0));
-    return tickerList;
+    return filteredList;
+}
+
+function mapAndSort(tickerList) {
+    const mappedList = tickerList.map(filteredObj => {
+        return {
+            symbol: filteredObj.baseAsset,
+            currency: filteredObj.quoteAsset,
+            price: filteredObj.price
+        };
+    });
+    mappedList.sort((a, b) => (a.currency > b.currency) ? 1 : ((b.currency > a.currency) ? -1 : 0));
+    return mappedList;
 }
 
 function filterOnCurrency(currency, tickerList) {
