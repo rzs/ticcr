@@ -1,6 +1,6 @@
 # ticcr
 
-CLI command that currently allow you to fetch crypto currency prices from Polinex and Bittrex. 
+CLI command that currently allow you to fetch crypto currency prices from Binance, Polinex and Bittrex. 
 
 ## Installation
 In order to ensure global access to command install using the -g (global) flag: 
