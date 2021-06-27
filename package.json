@@ -30,7 +30,7 @@
         "api"
     ],
     "author": "Rasmus Nørgaard",
-    "license": "ISC",
+    "license": "MIT",
     "bugs": {
         "url": "https://github.com/rzs/ticcr/issues"
     },
