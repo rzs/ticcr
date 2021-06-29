@@ -2,14 +2,25 @@ const fetch = require('node-fetch');
 const apiResolver = require('../lib/util/api/apiResolver');
 const tableStyle = require('../lib/util/table/tableStyle');
 const printError = require('../');
+const apiExchanges = require('../lib/util/api/apiExchanges');
 
-const doLookup = async function(tickers, currencies, exchanges) {
+const doLookup = async function(tickers, currencies, exchanges, list) {
+    if (list) {
+        listSupportedExchanges();
+    }
     if (Array.isArray(exchanges) && exchanges.length) {
         exchanges.forEach(exchange => {
             getDataFromExchange(exchange, tickers, currencies);
         });
     } else {
         getDataFromExchange(exchanges, tickers, currencies);
+    }
+}
+
+function listSupportedExchanges() {
+    console.log('List of supported exchanges:');
+    for (let obj of apiExchanges.exchanges) {
+        console.log(obj.name);
     }
 }
 

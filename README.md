@@ -25,7 +25,7 @@ $ ticcr -c usdt
 Use with flag -e (--exchange) to select from which exchange you want the price. 
 
 ```bash
-$ ticcr dcr ltc eth -c usdt -e bittrex
+$ ticcr dcr ltc eth -c usdt -e polinex
 ```
 
 Multiple coins can also be looked up simultaniously in multiple currencies. 
@@ -49,6 +49,12 @@ It is also possible to lookup multiple prices from multiple exchanges simultanio
 
 ```bash
 $ ticcr dcr ltc eth -c usdt -e binance polinex bittrex
+```
+
+Used with the -l (--list) option will provide a log of the supported exchanges.This will be logged prior to the price output. 
+
+```bash
+$ ticcr dcr -l
 ```
 
 NOTE: This package is still VERY buggy. 

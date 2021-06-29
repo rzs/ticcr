@@ -7,13 +7,13 @@ const lookup = require('../commands/lookup');
 
 program
     .version(pkg.version)
-    .option('-d, --debug', 'Output options')
     .option('-c, --currency [currencies...]', 'Select the denominated value; BTC, USD or USDT') // eventually more
     .option('-e, --exchange [exchanges...]', 'Bittrex is the default')
+    .option('-l, --list', 'List exchanges')
     .arguments('[tickers...]')
     .description("Supply tickers as arguments to display their prices")
     .action((tickers) => {
-        lookup.tickers(tickers, program.opts().currency, program.opts().exchange);
+        lookup.tickers(tickers, program.opts().currency, program.opts().exchange, program.opts().list);
     })
     .parse(process.argv);
 
