@@ -24,7 +24,13 @@ $ ticcr btc -c usdt
 Use with flag -c (--currency) to select the currency you wish the crypto displayed in. Use with flag -e (--exchange) to select from which exchange you want the price. 
 
 ```bash
-$ ticcr btc -c usdt -e bittrex
+$ ticcr dcr ltc eth -c usdt -e bittrex
+```
+
+It is also possible to lookup prices from multiple exchanges simultaniously.
+
+```bash
+$ ticcr dcr ltc eth -c usdt -e binance polinex bittrex
 ```
 
 Multiple coins can be looked up simultaniously in multiple currencies. 

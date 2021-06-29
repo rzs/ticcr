@@ -3,27 +3,31 @@ const apiResolver = require('../lib/util/api/apiResolver');
 const tableStyle = require('../lib/util/table/tableStyle');
 const printError = require('../');
 
-const doLookup = async function(tickers, currency, exchange) {
-    const api = apiResolver.resolveUrl(exchange);
+const doLookup = async function(tickers, currencies, exchanges) {
+    if (Array.isArray(exchanges) && exchanges.length) {
+        exchanges.forEach(exchange => {
+            const api = apiResolver.resolveUrl(exchange);
 
-    // data here could be from any exchange
-    const parserPromise = apiResolver.resolveParser(api);
-    parserPromise.then(transformedData => {
-        filterAndBuild(tickers, transformedData, currency, api);
-    }).catch(error => {
-        printError(error);
-    });
+            // data here could be from any exchange
+            const parserPromise = apiResolver.resolveParser(api);
+            parserPromise.then(transformedData => {
+                filterAndBuild(tickers, transformedData, currencies, api);
+            }).catch(error => {
+                printError(error);
+            });
+        });
+    }
 }
 
-function filterAndBuild(tickers, transformedData, currency, api) {
+function filterAndBuild(tickers, transformedData, currencies, api) {
     if (Array.isArray(tickers) && tickers.length) {
         const filteredList = filterOnTickers(tickers, transformedData);
         const tickerList = mapAndSort(filteredList);
-        const tickerCurrencyList = filterOnCurrency(currency, tickerList);
+        const tickerCurrencyList = filterOnCurrency(currencies, tickerList);
         sortAndBuild(api, tickerCurrencyList);
     } else {
         const tickerList = mapAndSort(transformedData);
-        const tickerCurrencyList = filterOnCurrency(currency, tickerList);
+        const tickerCurrencyList = filterOnCurrency(currencies, tickerList);
         sortAndBuild(api, tickerCurrencyList);
     }
 }
