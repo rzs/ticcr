@@ -15,25 +15,20 @@ The command below gives list of all cryptos from the default exchange. Currently
 $ ticcr
 ```
 
+Use with flag -c (--currency) to select the currency you wish the crypto displayed in. 
 The following command give a list of all cryptos from the default exchange in usdt. 
 
 ```bash
-$ ticcr btc -c usdt
+$ ticcr -c usdt
 ```
 
-Use with flag -c (--currency) to select the currency you wish the crypto displayed in. Use with flag -e (--exchange) to select from which exchange you want the price. 
+Use with flag -e (--exchange) to select from which exchange you want the price. 
 
 ```bash
 $ ticcr dcr ltc eth -c usdt -e bittrex
 ```
 
-It is also possible to lookup prices from multiple exchanges simultaniously.
-
-```bash
-$ ticcr dcr ltc eth -c usdt -e binance polinex bittrex
-```
-
-Multiple coins can be looked up simultaniously in multiple currencies. 
+Multiple coins can also be looked up simultaniously in multiple currencies. 
 
 ```bash
 $ ticcr btc dcr doge dash -c btc usdt -e polinex 
@@ -50,6 +45,10 @@ DCR | 0.00326248 | BTC
 DOGE | 0.00000678 | BTC
 DOGE | 0.21695474 | USDT
 
+It is also possible to lookup multiple prices from multiple exchanges simultaniously.
 
+```bash
+$ ticcr dcr ltc eth -c usdt -e binance polinex bittrex
+```
 
 NOTE: This package is still VERY buggy. 
