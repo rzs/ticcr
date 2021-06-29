@@ -6,17 +6,23 @@ const printError = require('../');
 const doLookup = async function(tickers, currencies, exchanges) {
     if (Array.isArray(exchanges) && exchanges.length) {
         exchanges.forEach(exchange => {
-            const api = apiResolver.resolveUrl(exchange);
-
-            // data here could be from any exchange
-            const parserPromise = apiResolver.resolveParser(api);
-            parserPromise.then(transformedData => {
-                filterAndBuild(tickers, transformedData, currencies, api);
-            }).catch(error => {
-                printError(error);
-            });
+            getDataFromExchange(exchange, tickers, currencies);
         });
+    } else {
+        getDataFromExchange(exchanges, tickers, currencies);
     }
+}
+
+function getDataFromExchange(exchange, tickers, currencies) {
+    const api = apiResolver.resolveUrl(exchange);
+
+    // data here could be from any exchange
+    const parserPromise = apiResolver.resolveParser(api);
+    parserPromise.then(transformedData => {
+        filterAndBuild(tickers, transformedData, currencies, api);
+    }).catch(error => {
+        printError(error);
+    });
 }
 
 function filterAndBuild(tickers, transformedData, currencies, api) {
