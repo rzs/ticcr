@@ -51,7 +51,7 @@ It is also possible to lookup multiple prices from multiple exchanges simultanio
 $ ticcr dcr ltc eth -c usdt -e binance polinex bittrex
 ```
 
-Used with the -l (--list) option will provide a log of the supported exchanges.This will be logged prior to the price output. 
+Used with the -l (--list) option will provide a log of the supported exchanges.This will be output prior to the price output. 
 
 ```bash
 $ ticcr dcr -l

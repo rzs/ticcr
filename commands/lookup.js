@@ -3,11 +3,15 @@ const apiResolver = require('../lib/util/api/apiResolver');
 const tableStyle = require('../lib/util/table/tableStyle');
 const printError = require('../');
 const apiExchanges = require('../lib/util/api/apiExchanges');
+const WebSocket = require('ws');
 
 const doLookup = async function(tickers, currencies, exchanges, list) {
     if (list) {
         listSupportedExchanges();
     }
+
+    getWebSocketData(tickers, currencies, exchanges);
+
     if (Array.isArray(exchanges) && exchanges.length) {
         exchanges.forEach(exchange => {
             getDataFromExchange(exchange, tickers, currencies);
@@ -15,6 +19,24 @@ const doLookup = async function(tickers, currencies, exchanges, list) {
     } else {
         getDataFromExchange(exchanges, tickers, currencies);
     }
+}
+
+function getWebSocketData(tickers, currencies, exchanges) {
+    const ws = new WebSocket("wss://stream.binance.com:9443/ws/!ticker@arr");
+    ws.on('message', function incoming(data) {
+        const parsedData = JSON.parse(data);
+        const filteredArray = parsedData.filter(item => {
+            return item.s.toLowerCase() === 'ltcbtc';
+        })
+        const mappedData = filteredArray.map(entity => {
+            return {
+                symbol: entity.s,
+                price: entity.c,
+                time: entity.E
+            }
+        });
+        console.log("\r\033[1A\033[0KSymbol: " + mappedData[0].symbol + ", Price: " + mappedData[0].price + ", Time: " + mappedData[0].time);
+    });
 }
 
 function listSupportedExchanges() {
@@ -109,6 +131,7 @@ function buildTable(exchange, tickerCurrencyList) {
         t.addRow({ Symbol: obj.symbol, Currency: obj.currency, Price: obj.price }, { color: "green" });
     });
     t.printTable();
+    console.log('\n');
 }
 
 const lookup = {
