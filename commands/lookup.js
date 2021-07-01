@@ -2,6 +2,7 @@ const fetch = require('node-fetch');
 const apiResolver = require('../lib/util/api/apiResolver');
 const tableStyle = require('../lib/util/table/tableStyle');
 const printError = require('../');
+const { dateFromTimeStamp } = require('../lib/util/util');
 const apiExchanges = require('../lib/util/api/apiExchanges');
 const WebSocket = require('ws');
 
@@ -35,7 +36,8 @@ function getWebSocketData(tickers, currencies, exchanges) {
                 time: entity.E
             }
         });
-        console.log("\r\033[1A\033[0KSymbol: " + mappedData[0].symbol + ", Price: " + mappedData[0].price + ", Time: " + mappedData[0].time);
+        const dateTime = dateFromTimeStamp(mappedData[0].time);
+        console.log("\r\033[1A\033[0KSymbol: " + mappedData[0].symbol + ", Price: " + mappedData[0].price + ", Time: " + dateTime);
     });
 }
 
