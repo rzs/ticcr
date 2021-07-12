@@ -58,9 +58,8 @@ need to use the keyboard combination "CTRL + C" to end the stream in your termin
 Note that both one or more tickers and one or more currencies must be given as input for this feature to work. 
 
 ```bash
-$ ticcr dcr ltc eth -c usdt -e binance polinex bittrex -s
+$ ticcr btc -c usdt -s
 ```
-
 
 Used with the -l (--list) option will provide a log of the supported exchanges.This will be output prior to the price output. 
 
