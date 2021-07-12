@@ -51,6 +51,17 @@ It is also possible to lookup multiple prices from multiple exchanges simultanio
 $ ticcr dcr ltc eth -c usdt -e binance polinex bittrex
 ```
 
+As an experimental feature it is now possible to get a real time stream of prices from binance via a 
+websocket connection. Use the -s (--socket) option. Because this connection stays open you currently 
+need to use the keyboard combination "CTRL + C" to end the stream in your terminal window. 
+
+Note that both one or more tickers and one or more currencies must be given as input for this feature to work. 
+
+```bash
+$ ticcr dcr ltc eth -c usdt -e binance polinex bittrex -s
+```
+
+
 Used with the -l (--list) option will provide a log of the supported exchanges.This will be output prior to the price output. 
 
 ```bash
