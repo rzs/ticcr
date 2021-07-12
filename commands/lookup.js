@@ -7,19 +7,19 @@ const apiExchanges = require('../lib/util/api/apiExchanges');
 const WebSocket = require('ws');
 
 const doLookup = async function(tickers, currencies, exchanges, list, socket) {
-    if (list) {
-        listSupportedExchanges();
-    }
-
-    if (Array.isArray(exchanges) && exchanges.length) {
-        exchanges.forEach(exchange => {
-            getDataFromExchange(exchange, tickers, currencies);
-        });
-    } else {
-        getDataFromExchange(exchanges, tickers, currencies);
-    }
     if (socket) {
         getWebSocketData(tickers, currencies);
+    } else {
+        if (Array.isArray(exchanges) && exchanges.length) {
+            exchanges.forEach(exchange => {
+                getDataFromExchange(exchange, tickers, currencies);
+            });
+        } else {
+            getDataFromExchange(exchanges, tickers, currencies);
+        }
+    }
+    if (list) {
+        listSupportedExchanges();
     }
 }
 
