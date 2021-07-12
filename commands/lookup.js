@@ -6,12 +6,10 @@ const { dateFromTimeStamp } = require('../lib/util/util');
 const apiExchanges = require('../lib/util/api/apiExchanges');
 const WebSocket = require('ws');
 
-const doLookup = async function(tickers, currencies, exchanges, list) {
+const doLookup = async function(tickers, currencies, exchanges, list, socket) {
     if (list) {
         listSupportedExchanges();
     }
-
-    getWebSocketData(tickers, currencies, exchanges);
 
     if (Array.isArray(exchanges) && exchanges.length) {
         exchanges.forEach(exchange => {
@@ -20,25 +18,47 @@ const doLookup = async function(tickers, currencies, exchanges, list) {
     } else {
         getDataFromExchange(exchanges, tickers, currencies);
     }
+    if (socket) {
+        getWebSocketData(tickers, currencies);
+    }
 }
 
-function getWebSocketData(tickers, currencies, exchanges) {
-    const ws = new WebSocket("wss://stream.binance.com:9443/ws/!ticker@arr");
-    ws.on('message', function incoming(data) {
-        const parsedData = JSON.parse(data);
-        const filteredArray = parsedData.filter(item => {
-            return item.s.toLowerCase() === 'ltcbtc';
-        })
-        const mappedData = filteredArray.map(entity => {
-            return {
-                symbol: entity.s,
-                price: entity.c,
-                time: entity.E
-            }
+function getWebSocketData(tickers, currencies) {
+    if ((Array.isArray(tickers) && tickers.length) && (Array.isArray(currencies) && currencies.length)) {
+        const arrayOfSymbols = createArrayOfSymbols(tickers, currencies);
+        arrayOfSymbols.sort((a, b) => (a.symbol > b.symbol) ? 1 : ((b.symbol > a.symbol) ? -1 : 0));
+        const tableBorders = 7;
+        const tableHeight = (tickers.length * currencies.length) + tableBorders;
+        const webSock = new WebSocket("wss://stream.binance.com:9443/ws/!bookTicker");
+        webSock.on('message', function incoming(data) {
+            const jsonData = JSON.parse(data);
+            arrayOfSymbols.forEach(ticker => {
+                if (jsonData.s.toLowerCase() === ticker.symbolName.toLowerCase()) {
+                    ticker.price = jsonData.a;
+                    sortAndBuild("binance", arrayOfSymbols);
+                    process.stdout.write("\u001b[" + tableHeight + "A");
+                };
+            });
         });
-        const dateTime = dateFromTimeStamp(mappedData[0].time);
-        console.log("\r\033[1A\033[0KSymbol: " + mappedData[0].symbol + ", Price: " + mappedData[0].price + ", Time: " + dateTime);
+    } else {
+        console.log('Both ticker and currency must be provided for socket connection to work');
+    }
+}
+
+function createArrayOfSymbols(tickers, currencies) {
+    let arrayOfSymbols = [];
+    tickers.forEach(baseAsset => {
+        currencies.forEach(quoteAsset => {
+            const name = baseAsset.concat(quoteAsset);
+            arrayOfSymbols.push({
+                symbolName: `${name}`,
+                symbol: baseAsset,
+                currency: quoteAsset,
+                price: ''
+            });
+        })
     });
+    return arrayOfSymbols;
 }
 
 function listSupportedExchanges() {
@@ -65,11 +85,11 @@ function filterAndBuild(tickers, transformedData, currencies, api) {
         const filteredList = filterOnTickers(tickers, transformedData);
         const tickerList = mapAndSort(filteredList);
         const tickerCurrencyList = filterOnCurrency(currencies, tickerList);
-        sortAndBuild(api, tickerCurrencyList);
+        sortAndBuild(api.name, tickerCurrencyList);
     } else {
         const tickerList = mapAndSort(transformedData);
         const tickerCurrencyList = filterOnCurrency(currencies, tickerList);
-        sortAndBuild(api, tickerCurrencyList);
+        sortAndBuild(api.name, tickerCurrencyList);
     }
 }
 
@@ -118,9 +138,9 @@ function filterOnCurrency(currency, tickerList) {
     }
 }
 
-function sortAndBuild(api, tickerCurrencyList) {
+function sortAndBuild(exchange, tickerCurrencyList) {
     sortOnTickerName(tickerCurrencyList);
-    buildTable(api.name, tickerCurrencyList);
+    buildTable(exchange, tickerCurrencyList);
 }
 
 function sortOnTickerName(tickerCurrencyList) {

@@ -10,10 +10,11 @@ program
     .option('-c, --currency [currencies...]', 'Select the denominated value; BTC, USD or USDT') // eventually more
     .option('-e, --exchange [exchanges...]', 'Bittrex is the default')
     .option('-l, --list', 'List exchanges')
+    .option('-s, --socket', 'Web socket connection')
     .arguments('[tickers...]')
     .description("Supply tickers as arguments to display their prices")
     .action((tickers) => {
-        lookup.tickers(tickers, program.opts().currency, program.opts().exchange, program.opts().list);
+        lookup.tickers(tickers, program.opts().currency, program.opts().exchange, program.opts().list, program.opts().socket);
     })
     .parse(process.argv);
 
