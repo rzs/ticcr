@@ -6,16 +6,16 @@ const { dateFromTimeStamp } = require('../lib/util/util');
 const apiExchanges = require('../lib/util/api/apiExchanges');
 const WebSocket = require('ws');
 
-const doLookup = async function(tickers, currencies, exchanges, list, socket) {
+const doLookup = async function(tickers, currencies, assets, exchanges, list, socket) {
     if (socket) {
         getWebSocketData(tickers, currencies);
     } else {
         if (Array.isArray(exchanges) && exchanges.length) {
             exchanges.forEach(exchange => {
-                getDataFromExchange(exchange, tickers, currencies);
+                getDataFromExchange(exchange, tickers, currencies, assets);
             });
         } else {
-            getDataFromExchange(exchanges, tickers, currencies);
+            getDataFromExchange(exchanges, tickers, currencies, assets);
         }
     }
     if (list) {
@@ -68,29 +68,51 @@ function listSupportedExchanges() {
     }
 }
 
-function getDataFromExchange(exchange, tickers, currencies) {
+function getDataFromExchange(exchange, tickers, currencies, assets) {
     const api = apiResolver.resolveUrl(exchange);
 
     // data here could be from any exchange
     const parserPromise = apiResolver.resolveParser(api);
     parserPromise.then(transformedData => {
-        filterAndBuild(tickers, transformedData, currencies, api);
+        filterAndBuild(tickers, transformedData, currencies, assets, api);
     }).catch(error => {
         printError(error);
     });
 }
 
-function filterAndBuild(tickers, transformedData, currencies, api) {
+function filterAndBuild(tickers, transformedData, currencies, assets, api) {
     if (Array.isArray(tickers) && tickers.length) {
         const filteredList = filterOnTickers(tickers, transformedData);
         const tickerList = mapAndSort(filteredList);
         const tickerCurrencyList = filterOnCurrency(currencies, tickerList);
         sortAndBuild(api.name, tickerCurrencyList);
+        compare(assets, tickerCurrencyList);
     } else {
         const tickerList = mapAndSort(transformedData);
         const tickerCurrencyList = filterOnCurrency(currencies, tickerList);
         sortAndBuild(api.name, tickerCurrencyList);
+        compare(assets, tickerCurrencyList);
     }
+}
+
+function compare(assets, tickerCurrencyList) {
+    if (Array.isArray(assets) && assets.length) {
+        const count = assets[0];
+        const fromAsset = assets[1];
+        const toAsset = assets[2];
+        let fromAssetValue = tickerCurrencyList.find(asset => {
+            return asset.symbol.toLowerCase() === fromAsset.toLowerCase();
+        });
+        let toAssetValue = tickerCurrencyList.find(asset => {
+            return asset.symbol.toLowerCase() === toAsset.toLowerCase();
+        })
+        doCalculation(fromAsset, toAsset, count, fromAssetValue, toAssetValue);
+    }
+}
+
+function doCalculation(fromAsset, toAsset, count, fromAssetValue, toAssetValue) {
+    let amountOfAsset = fromAssetValue.price / toAssetValue.price;
+    console.log("Count: " + count + " " + fromAsset + " = " + amountOfAsset + " " + toAsset);
 }
 
 function filterOnTickers(tickers, transformedData) {
